@@ -33,6 +33,20 @@ public class UserController {
     public void deleteUser(@PathVariable String username) {
         userService.deleteUser(username);
     }
+     @GetMapping("/me")
+    public User getCurrentUser(Authentication authentication) {
+        String username = authentication.getName();
+        return userService.getUserByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+    }
+
+
+    @PutMapping("/me")
+    public User updateCurrentUser(@RequestBody User updatedUser, Authentication authentication) {
+        String username = authentication.getName();
+        return userService.updateUser(username, updatedUser);
+    }
+
 
 
 
