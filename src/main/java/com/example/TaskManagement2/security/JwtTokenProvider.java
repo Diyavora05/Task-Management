@@ -12,7 +12,7 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    // Base64 encoded secret key string (make sure your secret in properties is base64 encoded)
+  
     @Value("${jwt.secret}")
     private String jwtSecret;
 
@@ -25,7 +25,7 @@ public class JwtTokenProvider {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    // 1. Generate Token
+    // Generate Token
     public String generateToken(String username) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
@@ -38,7 +38,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // 2. Get Username From Token
+    // Get Username From Token
     public String getUsernameFromToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
@@ -48,7 +48,7 @@ public class JwtTokenProvider {
                 .getSubject();
     }
 
-    // 3. Validate Token
+    // Validate Token
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
@@ -57,69 +57,9 @@ public class JwtTokenProvider {
                     .parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            // Optionally log the exception e here
+          
             return false;
         }
     }
 }
 
-
-//package com.example.TaskManagement2.security;
-//
-//import io.jsonwebtoken.*;
-//import io.jsonwebtoken.security.Keys;
-//import org.springframework.beans.factory.annotation.Value;
-//import org.springframework.stereotype.Component;
-//
-//import java.security.Key;
-//import java.util.Date;
-//
-//@Component
-//public class JwtTokenProvider {
-//
-//    @Value("${jwt.secret}")
-//    private String jwtSecret;
-//
-//    @Value("${jwt.expiration-ms}")
-//    private long jwtExpirationInMs;
-//
-//    private Key getSigningKey() {
-//        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
-//    }
-//
-//    // 1. Generate Token
-//    public String generateToken(String username) {
-//        Date now = new Date();
-//        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
-//
-//        return Jwts.builder()
-//                .setSubject(username)
-//                .setIssuedAt(now)
-//                .setExpiration(expiryDate)
-//                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-//                .compact();
-//    }
-//
-//    // 2. Get Username From Token
-//    public String getUsernameFromToken(String token) {
-//        return Jwts.parserBuilder()
-//                .setSigningKey(getSigningKey())
-//                .build()
-//                .parseClaimsJws(token)
-//                .getBody()
-//                .getSubject();
-//    }
-//
-//    // 3. Validate Token
-//    public boolean validateToken(String token) {
-//        try {
-//            Jwts.parserBuilder()
-//                    .setSigningKey(getSigningKey())
-//                    .build()
-//                    .parseClaimsJws(token);
-//            return true;
-//        } catch (JwtException | IllegalArgumentException e) {
-//            return false;
-//        }
-//    }
-//}
