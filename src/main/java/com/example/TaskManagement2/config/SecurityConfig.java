@@ -43,7 +43,7 @@ public class SecurityConfig {
     }
 
 
-    // This bean is required to expose AuthenticationManager to be @Autowired elsewhere (e.g. AuthController)
+    
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
