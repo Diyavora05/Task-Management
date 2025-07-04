@@ -1,38 +1,3 @@
-//package com.example.TaskManagement2.Controller;
-//
-//import com.example.TaskManagement2.Service.TaskService;
-//import com.example.TaskManagement2.model.Task;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.http.HttpStatus;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.security.core.Authentication;
-//import org.springframework.web.bind.annotation.*;
-//
-//// TaskController.java
-//@RestController
-//@RequestMapping("/api/tasks")
-//public class TaskController {
-//
-//    @Autowired
-//    private TaskService taskService;
-//
-//    @PostMapping
-//    public ResponseEntity<?> createTask(@RequestBody Task task) {
-//
-//        return ResponseEntity.ok(taskService.createTask(task));
-//    }
-//
-//    @GetMapping
-//    public ResponseEntity<?> getAllTasks(Authentication authentication) {
-//        if (authentication == null) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
-//        }
-//        String username = authentication.getName();
-//        return ResponseEntity.ok(taskService.getAllTasks(username));
-//    }
-//}
-
-
 package com.example.TaskManagement2.Controller;
 
 import com.example.TaskManagement2.Service.TaskService;
