@@ -3,6 +3,8 @@ package com.example.TaskManagement2.Controller;
 import com.example.TaskManagement2.Service.TaskService;
 import com.example.TaskManagement2.model.Task;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,42 +16,58 @@ public class TaskController {
     @Autowired
     TaskService taskService;
 
-    // GET SINGLE TASK
-    @GetMapping("/user/{userid}/{id}")
-    public Task getTaskById(@PathVariable String userid, @PathVariable String id) {
-        return taskService.getTaskById(id, userid);
+    private String getCurrentUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.getName(); // username from JWT token
     }
-    //GET ALL TASKS
-    @GetMapping("/user/{userid}")
-    public List<Task> getAllTasks(@PathVariable String userid) {
-        return taskService.getAllTasks(userid);
+
+    // GET SINGLE TASK by id for logged-in user
+    @GetMapping("/{id}")
+    public Task getTaskById(@PathVariable String id) {
+        String username = getCurrentUsername();
+        return taskService.getTaskById(id, username);
     }
-    // GET TASK BY TITLE
+
+    // GET ALL TASKS for logged-in user
+    @GetMapping
+    public List<Task> getAllTasks() {
+        String username = getCurrentUsername();
+        return taskService.getAllTasks(username);
+    }
+
+    // GET TASK BY TITLE for logged-in user
     @GetMapping("/title/{title}")
     public Task getTaskByTitle(@PathVariable String title) {
-        return taskService.getTaskByTitle(title).orElseThrow(() -> new RuntimeException("Task not found"));
+        String username = getCurrentUsername();
+        return taskService.getTaskByTitle(title, username)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
     }
 
-    // CREATE TASK
+    // CREATE TASK for logged-in user
     @PostMapping("/create")
     public Task createTask(@RequestBody Task task) {
-        return taskService.createTask(task);
-    }
-    // UPDATE TASK
-    @PutMapping("/updatetask/{userid}/{id}")
-    public Task updateTask(@PathVariable String id , @RequestBody Task task , @PathVariable String userid) {
-        return taskService.updateTask(id, task, userid);
-    }
-    // UPDATE STATUS
-    @PutMapping("/updatestatus/{userid}/{id}")
-    public Task updateStatus(@PathVariable String id, @RequestParam String status, @PathVariable String userid) {
-        return taskService.updateStatus(id,status,userid);
+        String username = getCurrentUsername();
+        return taskService.createTask(task, username);
     }
 
-    // DELETE TASK
-    @DeleteMapping("/deletetask/{userid}/{id}")
-    public void deleteTask(@PathVariable String userid, @PathVariable String id) {
-        taskService.deleteTask(id, userid);
+    // UPDATE TASK for logged-in user
+    @PutMapping("/updatetask/{id}")
+    public Task updateTask(@PathVariable String id, @RequestBody Task task) {
+        String username = getCurrentUsername();
+        return taskService.updateTask(id, task, username);
     }
 
+    // UPDATE STATUS for logged-in user
+    @PutMapping("/updatestatus/{id}")
+    public Task updateStatus(@PathVariable String id, @RequestParam String status) {
+        String username = getCurrentUsername();
+        return taskService.updateStatus(id, status, username);
+    }
+
+    // DELETE TASK for logged-in user
+    @DeleteMapping("/deletetask/{id}")
+    public void deleteTask(@PathVariable String id) {
+        String username = getCurrentUsername();
+        taskService.deleteTask(id, username);
+    }
 }
