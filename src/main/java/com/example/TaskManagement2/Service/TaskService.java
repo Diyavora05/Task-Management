@@ -1,6 +1,7 @@
 package com.example.TaskManagement2.Service;
 
 import com.example.TaskManagement2.model.Task;
+import com.example.TaskManagement2.model.TaskStatus;
 import com.example.TaskManagement2.model.User;
 import com.example.TaskManagement2.repository.TaskRepository;
 import com.example.TaskManagement2.repository.UserRepository;
@@ -8,6 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,50 +31,67 @@ public class TaskService {
     }
 
     public Task getTaskById(String taskId, String username) {
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+        User user = getUserByUsername(username);
+        Task task = taskRepository.findByIdAndUserid(taskId, user.getId())
+                .orElseThrow(() -> new RuntimeException("Task not found or unauthorized"));
 
-        if (!task.getUser().getUsername().equals(username)) {
-            throw new AccessDeniedException("Unauthorized access");
-        }
         return task;
     }
 
     public List<Task> getAllTasks(String username) {
         User user = getUserByUsername(username);
-        return taskRepository.findByUser(user);
+        return taskRepository.findAllByUserid(user.getId());
     }
 
     public Optional<Task> getTaskByTitle(String title, String username) {
         User user = getUserByUsername(username);
-        return taskRepository.findByTitleAndUser(title, user);
+        return taskRepository.findByTitleAndUserid(title, user.getId());
     }
 
     public Task createTask(Task task, String username) {
         User user = getUserByUsername(username);
-        task.setUser(user);
+        task.setUserid(user.getId());
+        Date now = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
+        task.setCreated_at(now);
+        task.setUpdated_at(now);
         return taskRepository.save(task);
     }
 
     public Task updateTask(String taskId, Task updatedTask, String username) {
-        Task existingTask = getTaskById(taskId, username); 
+        User user = getUserByUsername(username);
+        Task task = taskRepository.findByIdAndUserid(taskId, user.getId())
+                .orElseThrow(() -> new RuntimeException("Task not found or unauthorized"));
 
-        existingTask.setTitle(updatedTask.getTitle());
-        existingTask.setDescription(updatedTask.getDescription());
-        
-
-        return taskRepository.save(existingTask);
+        task.setTitle(updatedTask.getTitle());
+        task.setDescription(updatedTask.getDescription());
+        task.setDue_date(updatedTask.getDue_date());
+        task.setUpdated_at(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
+        return taskRepository.save(task);
     }
+    public Task updateStatus(String taskId, String statusStr, String username) {
+        User user = getUserByUsername(username);
+        Task task = taskRepository.findByIdAndUserid(taskId, user.getId())
+                .orElseThrow(() -> new RuntimeException("Task not found or unauthorized"));
 
-    public Task updateStatus(String taskId, String status, String username) {
-        Task existingTask = getTaskById(taskId, username); 
 
-        existingTask.setStatus(status);
-        return taskRepository.save(existingTask);
+        TaskStatus status;
+        try {
+            status = TaskStatus.valueOf(statusStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid status value: " + statusStr);
+        }
+
+        task.setStatus(status);
+        task.setUpdated_at(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
+        return taskRepository.save(task);
     }
 
     public void deleteTask(String taskId, String username) {
-        Task existingTask = getTaskById(taskId, username); 
-        taskRepository.delete(existingTask);
+        User user = getUserByUsername(username);
+        Task task = taskRepository.findByIdAndUserid(taskId, user.getId())
+                .orElseThrow(() -> new RuntimeException("Task not found or unauthorized"));
+
+        taskRepository.delete(task);
     }
 }
+
