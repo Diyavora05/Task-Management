@@ -20,12 +20,12 @@ public class JwtTokenProvider {
     private long jwtExpirationInMs;
 
     private Key getSigningKey() {
-        // Decode base64-encoded secret to bytes
+        /** Decode base64-encoded secret to bytes */
         byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    //  Generate Token
+    /**  Generate Token */
     public String generateToken(String username) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
@@ -38,7 +38,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    //  Get Username From Token
+    /**  Get Username From Token */
     public String getUsernameFromToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
@@ -48,7 +48,7 @@ public class JwtTokenProvider {
                 .getSubject();
     }
 
-    //  Validate Token
+    /**  Validate Token */
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
