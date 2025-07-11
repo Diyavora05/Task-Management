@@ -14,27 +14,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/user/{id}")
-    public User getUser(@PathVariable String id) {
-        return userService.getUserById(id).orElseThrow(() -> new RuntimeException("User not found with id: " + id));
-    }
-    @GetMapping
-    public List<User> getUsers() {
-        return userService.getAllUsers();
-    }
-    @PostMapping("/create")
-    public User registerUser(@RequestBody User user) {
-       return userService.registerUser(user);
-    }
-    @PutMapping("/update/{username}")
-    public User updateUser(@PathVariable String username, @RequestBody User user) {
-        return userService.updateUser(username, user);
-    }
-    @DeleteMapping("/delete/{username}")
-    public void deleteUser(@PathVariable String username) {
-        userService.deleteUser(username);
-    }
-
     @GetMapping("/me")
     public User getCurrentUser(Authentication authentication) {
         String username = authentication.getName();
